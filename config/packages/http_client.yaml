@@ -1,0 +1,9 @@
+framework:
+    http_client:
+        scoped_clients:
+            # Готовый клиент TMDB: ключ и язык подставляются в каждый запрос.
+            tmdb.client:
+                base_uri: '%env(TMDB_API_BASE_URL)%/'
+                query:
+                    api_key: '%env(TMDB_API_KEY)%'
+                    language: '%env(TMDB_LANGUAGE)%'
