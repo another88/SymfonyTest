@@ -1,0 +1,47 @@
+services:
+
+  php:
+    build: docker
+    container_name: 'php'
+    volumes:
+      - ./:/app
+    working_dir: /app
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    container_name: 'nginx'
+    working_dir: /app
+    ports:
+      - '7777:80'
+    volumes:
+      - ./:/app
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: 'postgres'
+    restart: always
+    ports:
+      - '15432:5432'
+    environment:
+      POSTGRES_DB: 'app'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'password'
+    volumes:
+      # В postgres 18+ том монтируется на /var/lib/postgresql, а не на
+      # .../data: образ сам создаёт внутри каталог по мажорной версии,
+      # чтобы работал pg_upgrade --link.
+      - postgresql:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U user -d app']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgresql:
