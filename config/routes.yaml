@@ -9,3 +9,8 @@
 
 controllers:
     resource: routing.controllers
+
+# Обрабатывается json_login-слушателем firewall'а, контроллер не нужен.
+api_login:
+    path: /api/login
+    methods: [POST]
