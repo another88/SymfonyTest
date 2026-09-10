@@ -1,0 +1,24 @@
+framework:
+    messenger:
+        # Сообщения, упавшие после всех повторов, уходят в отдельную очередь.
+        failure_transport: failed
+
+        transports:
+            # https://symfony.com/doc/current/messenger.html#transport-configuration
+            get_new_films: '%env(MESSENGER_TRANSPORT_DSN)%&queue_name=get_new_films'
+            send_email: '%env(MESSENGER_TRANSPORT_DSN)%&queue_name=send_email'
+            failed: 'doctrine://default?queue_name=failed'
+            sync: 'sync://'
+
+        routing:
+            # Письма уходят через очередь, а не в момент запроса.
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: send_email
+            App\DTO\SendNewFilmsDTO: get_new_films
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                # В тестах очереди держим в памяти, а не в БД.
+                get_new_films: 'in-memory://'
+                send_email: 'in-memory://'
